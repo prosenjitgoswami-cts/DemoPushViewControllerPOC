@@ -10,5 +10,6 @@
 
 @interface DaysViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property NSUInteger pageIndex;
 
 @end
