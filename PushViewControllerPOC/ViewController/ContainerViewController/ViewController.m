@@ -8,7 +8,8 @@
 
 #import "ViewController.h"
 #import "PageContentViewController.h"
-
+#import "DaysViewController.h"
+#import "ListViewController.h"
 
 @interface ViewController ()
 
@@ -20,13 +21,13 @@
 
 - (void)createViewControllers {
     
-    UIViewController *listViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ListViewController"];
+    
+    DaysViewController *listViewController = [[DaysViewController alloc]init];
+    listViewController.pageIndex = 0;
+    
+    ListViewController *daysViewController = [[ListViewController alloc]init];
+    daysViewController.pageIndex = 1;
 
-    UIViewController *daysViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"DaysViewController"];
-    UIViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageContentViewController"];
-//    UIViewController *listViewController = [[UIViewController alloc]init];
-//    UIViewController *daysViewController = [[UIViewController alloc]init];
- 
     if(!self.activeViewControllers)
     {
         self.activeViewControllers = [[NSMutableArray alloc]init];
@@ -46,41 +47,34 @@
     {
         [self.activeViewControllers addObject:daysViewController];
     }
-    if(pageContentViewController)
-    {
-        [self.activeViewControllers addObject:pageContentViewController];
-    }
+   
+    
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    
-//    
-//    _pageTitles = @[@"Over 200 Tips and Tricks", @"Discover Hidden Features", @"Bookmark Favorite Tip", @"Free Regular Update"];
-//    _pageImages = @[@"page1.jpg", @"page2.jpeg", @"page3.png", @"page4.png"];
-    
+
     [self createViewControllers];
     
     
-    // Create page view controller
     self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
-    self.pageViewController.dataSource = self;
     
- // UIViewController *startingViewController = [self viewControllerAtIndex:0];
-    UIViewController *startingViewController = [self.activeViewControllers objectAtIndex:0];
-//    NSArray *viewControllers = @[startingViewController];
-    
-    if(self.activeViewControllers.count)
-    {
-    [self.pageViewController setViewControllers:self.activeViewControllers direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
+    if(self.pageViewController) {
+        
+        self.pageViewController.dataSource = self;
+        
+        if(self.activeViewControllers && self.activeViewControllers.count) {
+            
+            [self.pageViewController setViewControllers:@[self.activeViewControllers[0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:NULL];
+        }
     }
-    // Change the size of page view controller
-    self.pageViewController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 30);
-    
-    [self addChildViewController:_pageViewController];
-    [self.view addSubview:_pageViewController.view];
-    [self.pageViewController didMoveToParentViewController:self];
-
+        // Change the size of page view controller
+        self.pageViewController.view.frame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height - 30.0f);
+        self.pageViewController.doubleSided = YES;
+        [self addChildViewController:_pageViewController];
+        [self.view addSubview:_pageViewController.view];
+        [self.pageViewController didMoveToParentViewController:self];
+     
 }
 
 - (void)didReceiveMemoryWarning {
@@ -88,12 +82,12 @@
     // Dispose of any resources that can be recreated.
 }
 
-//- (IBAction)startWalkThrough:(id)sender {
-//    
-//    UIViewController *startingViewController = [self viewControllerAtIndex:0];
-//    NSArray *viewControllers = @[startingViewController];
-//    [self.pageViewController setViewControllers:viewControllers direction:UIPageViewControllerNavigationDirectionReverse animated:NO completion:nil];
-//}
+- (IBAction)startWalkThrough:(id)sender {
+
+    UIViewController *startingViewController = [self viewControllerAtIndex:0];
+    NSArray *viewControllers = @[startingViewController];
+    [self.pageViewController setViewControllers:viewControllers direction:UIPageViewControllerNavigationDirectionReverse animated:YES completion:nil];
+}
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
 {
@@ -104,7 +98,9 @@
     }
     
     index--;
-return [self.activeViewControllers objectAtIndex:index];}
+    
+    return [self viewControllerAtIndex:index];
+}
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
 {
@@ -115,45 +111,23 @@ return [self.activeViewControllers objectAtIndex:index];}
     }
     
     index++;
-
-    return [self.activeViewControllers objectAtIndex:index];//[self viewControllerAtIndex:index];
+    
+    return [self viewControllerAtIndex:index];
 }
 
 - (UIViewController *)viewControllerAtIndex:(NSUInteger)index
 {
-    if (([self.pageTitles count] == 0) || (index >= [self.pageTitles count])) {
+    if (([self.activeViewControllers count] == 0) || (index >= [self.activeViewControllers count])) {
         return nil;
     }
     
-    // Create a new view controller and pass suitable data.
-//    PageContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageContentViewController"];
-
-    //pageContentViewController.imageFile = self.pageImages[index];
+    UIViewController *activeViewController = nil;
     
-    
-    
-//    if (self.pageImages && index < self.pageImages.count) {
-//        
-//        NSString *imageName = self.pageImages[index];
-//        
-//        if(imageName.length) {
-//
-    //            pageContentViewController.imageFile = imageName;
-//
-//        }
-//        
-//        pageContentViewController.titleText = self.pageTitles[index];
-//        pageContentViewController.pageIndex = index;
-//        
-//        
-//    }
-    UIViewController *activeViewController;
     if(self.activeViewControllers && index < self.activeViewControllers.count)
     {
         
-    activeViewController = [self.activeViewControllers objectAtIndex:index];
+        activeViewController = [self.activeViewControllers objectAtIndex:index];
         
-        //activeViewController   = [self.storyboard instantiateViewControllerWithIdentifier:viewControllerName];
         if(!activeViewController)
             return nil;
     }
@@ -161,13 +135,4 @@ return [self.activeViewControllers objectAtIndex:index];}
     return activeViewController;
 }
 
-- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController
-{
-    return [self.pageTitles count];
-}
-
-- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController
-{
-    return 0;
-}
 @end
