@@ -24,13 +24,13 @@
 
 
 - (void)viewDidLoad {
-   
+    
     [super viewDidLoad];
-
+    
     [self createViewControllers];
     
     [self initialisedPageViewController];
-
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -39,7 +39,7 @@
 }
 
 
-#pragma mark - Private method 
+#pragma mark - Private method
 
 - (void)initialisedPageViewController {
     
@@ -72,23 +72,23 @@
     ListViewController *daysViewController = [[ListViewController alloc]init];
     daysViewController.pageIndex = 1;
     
-    if(!self.activeViewControllers)
-    {
-        self.activeViewControllers = [[NSMutableArray alloc]init];
+    if(!self.activeViewControllers) {
         
+        self.activeViewControllers = [[NSMutableArray alloc]init];
     }
-    else
-    {
+    else {
+        
         [self.activeViewControllers removeAllObjects];
     }
     
     
-    if(listViewController)
-    {
+    if(listViewController) {
+        
         [self.activeViewControllers addObject:listViewController];
     }
-    if(daysViewController)
-    {
+    
+    if(daysViewController) {
+        
         [self.activeViewControllers addObject:daysViewController];
     }
     
@@ -102,14 +102,14 @@
 }
 
 - (UIViewController *)viewControllerAtIndex:(NSUInteger)index {
+    
     if (([self.activeViewControllers count] == 0) || (index >= [self.activeViewControllers count])) {
         return nil;
     }
     
     UIViewController *activeViewController = nil;
     
-    if(self.activeViewControllers && index < self.activeViewControllers.count)
-    {
+    if(self.activeViewControllers && index < self.activeViewControllers.count) {
         
         activeViewController = [self.activeViewControllers objectAtIndex:index];
         
@@ -123,16 +123,17 @@
 #pragma mark - IB Action
 
 - (IBAction)startWalkThrough:(id)sender {
-
+    
     [self moveToFirstPage];
-   
+    
 }
 
 
 #pragma mark - UIPageViewController Delegate
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
-{
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+      viewControllerBeforeViewController:(UIViewController *)viewController {
+    
     NSUInteger index = ((PageContentViewController*) viewController).pageIndex;
     
     if ((index == 0) || (index == NSNotFound)) {
@@ -144,8 +145,8 @@
     return [self viewControllerAtIndex:index];
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController
-{
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController {
+    
     NSUInteger index = ((PageContentViewController*) viewController).pageIndex;
     
     if (index == NSNotFound) {
