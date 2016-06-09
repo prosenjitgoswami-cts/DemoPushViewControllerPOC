@@ -55,14 +55,28 @@
         }
     }
     
-    // Change the size of page view controller
-    self.pageViewController.view.frame = CGRectMake(0.0f, 0.0f, self.view.frame.size.width, self.view.frame.size.height - 30.0f);
+    // TranslatesAutoresizingMaskIntoConstraints must be No when use NSLayoutConstraint
+    [self.pageViewController.view setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
     self.pageViewController.doubleSided = YES;
     [self addChildViewController:_pageViewController];
     [self.view addSubview:_pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
+    
+    // Add LayoutConstraint
+    [self addConstrains];
 }
 
+- (void)addConstrains {
+    
+    if(!_pageViewController) return;
+    
+    NSDictionary *views = @{@"pageViewController": self.pageViewController.view};
+  
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageViewController]|" options:0 metrics:nil views:views]];
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[pageViewController]-30-|" options:0 metrics:nil views:views]];
+}
 
 - (void)createViewControllers {
     
@@ -72,15 +86,7 @@
     ListViewController *daysViewController = [[ListViewController alloc]init];
     daysViewController.pageIndex = 1;
     
-    if(!self.activeViewControllers) {
-        
-        self.activeViewControllers = [[NSMutableArray alloc]init];
-    }
-    else {
-        
-        [self.activeViewControllers removeAllObjects];
-    }
-    
+   
     
     if(listViewController) {
         
@@ -91,8 +97,9 @@
         
         [self.activeViewControllers addObject:daysViewController];
     }
-    
 }
+
+
 
 - (void)moveToFirstPage {
     
@@ -118,6 +125,17 @@
     }
     
     return activeViewController;
+}
+
+// MARK: Setter Method
+- (NSMutableArray *)activeViewControllers {
+    
+    if(!_activeViewControllers) {
+        
+        _activeViewControllers = [[NSMutableArray alloc]init];
+    }
+   
+    return _activeViewControllers;
 }
 
 #pragma mark - IB Action
