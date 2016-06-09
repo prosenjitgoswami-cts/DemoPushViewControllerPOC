@@ -11,6 +11,8 @@
 #import "DaysViewController.h"
 #import "ListViewController.h"
 
+
+
 @interface ViewController ()
 
 @property (strong,nonatomic) NSMutableArray *activeViewControllers;
@@ -80,12 +82,17 @@
 
 - (void)createViewControllers {
     
-    DaysViewController *listViewController = [[DaysViewController alloc]init];
+    ListViewController *listViewController = [[ListViewController alloc]init];
     listViewController.pageIndex = 0;
+    listViewController.pageTitle = @"I am ListViewController";
     
-    ListViewController *daysViewController = [[ListViewController alloc]init];
+    DaysViewController *daysViewController = [[DaysViewController alloc]init];
     daysViewController.pageIndex = 1;
-    
+    daysViewController.pageTitle = @"I am daysViewController";
+
+    PageContentViewController *pageContentViewController = [[PageContentViewController alloc]init];
+    pageContentViewController.pageIndex = 2;
+    pageContentViewController.pageTitle = @"I am pageContentViewController";
    
     
     if(listViewController) {
@@ -96,6 +103,12 @@
     if(daysViewController) {
         
         [self.activeViewControllers addObject:daysViewController];
+    }
+    
+    if(pageContentViewController) {
+        
+        [self.activeViewControllers addObject:pageContentViewController];
+        
     }
 }
 
@@ -127,7 +140,7 @@
     return activeViewController;
 }
 
-// MARK: Setter Method
+// MARK: Getter Method
 - (NSMutableArray *)activeViewControllers {
     
     if(!_activeViewControllers) {
@@ -151,8 +164,13 @@
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
       viewControllerBeforeViewController:(UIViewController *)viewController {
+  
+    NSUInteger index = 0;
     
-    NSUInteger index = ((PageContentViewController*) viewController).pageIndex;
+    if([viewController respondsToSelector:@selector(pageIndex)])
+    {
+        index = [viewController pageIndex];
+    }
     
     if ((index == 0) || (index == NSNotFound)) {
         return nil;

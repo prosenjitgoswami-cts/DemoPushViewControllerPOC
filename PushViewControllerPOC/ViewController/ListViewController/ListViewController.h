@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "UIViewController+CurrentIndex.h"
 
 @interface ListViewController : UIViewController
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
-@property NSUInteger pageIndex;
 
 @end
