@@ -16,8 +16,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.titleLabel.text = @"PageContentViewController";
-   // self.backgroundImageView.image = [UIImage imageNamed:self.imageFile];
 
 }
 
