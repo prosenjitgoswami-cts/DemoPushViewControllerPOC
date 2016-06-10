@@ -10,13 +10,12 @@
 #import "PageContentViewController.h"
 #import "DaysViewController.h"
 #import "ListViewController.h"
-
-
+#import "CustomizeScrollView.h"
 
 @interface ViewController ()
 
 @property (strong,nonatomic) NSMutableArray *activeViewControllers;
-
+@property (strong,nonatomic) CustomizeScrollView *customScroll;
 @end
 
 @implementation ViewController
@@ -29,9 +28,10 @@
     
     [super viewDidLoad];
     
-    [self createViewControllers];
+    [self pagesDataSource];
     
-    [self initialisedPageViewController];
+    [self configureUI];
+    
     
 }
 
@@ -43,27 +43,14 @@
 
 #pragma mark - Private method
 
-- (void)initialisedPageViewController {
+- (void)configureUI {
     
-    self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
     
-    if(self.pageViewController) {
-        
-        self.pageViewController.dataSource = self;
-        
-        if(self.activeViewControllers && self.activeViewControllers.count) {
-            
-            [self.pageViewController setViewControllers:@[self.activeViewControllers[0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:NULL];
-        }
-    }
-    
-    // TranslatesAutoresizingMaskIntoConstraints must be No when use NSLayoutConstraint
-    [self.pageViewController.view setTranslatesAutoresizingMaskIntoConstraints:NO];
-    
-    self.pageViewController.doubleSided = YES;
-    [self addChildViewController:_pageViewController];
-    [self.view addSubview:_pageViewController.view];
+    [self addChildViewController:self.pageViewController];
+    [self.view addSubview:self.pageViewController.view];
     [self.pageViewController didMoveToParentViewController:self];
+    
+    [self.view addSubview:self.customScroll];
     
     // Add LayoutConstraint
     [self addConstrains];
@@ -71,16 +58,21 @@
 
 - (void)addConstrains {
     
-    if(!_pageViewController) return;
+    if(!_pageViewController || !_customScroll) return;
     
-    NSDictionary *views = @{@"pageViewController": self.pageViewController.view};
-  
+    NSDictionary *views = @{@"pageViewController": self.pageViewController.view,
+                            @"customScroll": self.customScroll};
+    
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[pageViewController]|" options:0 metrics:nil views:views]];
     
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[pageViewController]-30-|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[customScroll]-|" options:0 metrics:nil views:views]];
+    
+    
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-20-[customScroll(100)][pageViewController]-30-|" options:0 metrics:nil views:views]];
 }
 
-- (void)createViewControllers {
+- (void)pagesDataSource {
     
     ListViewController *listViewController = [[ListViewController alloc]init];
     listViewController.pageIndex = 0;
@@ -89,11 +81,11 @@
     DaysViewController *daysViewController = [[DaysViewController alloc]init];
     daysViewController.pageIndex = 1;
     daysViewController.pageTitle = @"I am daysViewController";
-
+    
     PageContentViewController *pageContentViewController = [[PageContentViewController alloc]init];
     pageContentViewController.pageIndex = 2;
     pageContentViewController.pageTitle = @"I am pageContentViewController";
-   
+    
     
     if(listViewController) {
         
@@ -110,6 +102,10 @@
         [self.activeViewControllers addObject:pageContentViewController];
         
     }
+    
+    //UIScrollView *customScroll = [UIScrollView alloc];
+    
+    
 }
 
 
@@ -147,15 +143,55 @@
         
         _activeViewControllers = [[NSMutableArray alloc]init];
     }
-   
+    
     return _activeViewControllers;
 }
+
+- (CustomizeScrollView *)customScroll {
+    
+    if(!_customScroll) {
+        
+        _customScroll = [[CustomizeScrollView alloc]initWithItem:_activeViewControllers.count];
+        _customScroll.translatesAutoresizingMaskIntoConstraints = NO;
+        _customScroll.backgroundColor = [UIColor redColor];
+    }
+    
+    return _customScroll;
+    
+}
+
+- (UIPageViewController *)pageViewController {
+    
+    if(!_pageViewController) {
+        
+        _pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
+        
+        if(_pageViewController) {
+            
+            _pageViewController.dataSource = self;
+            
+            if(_activeViewControllers && self.activeViewControllers.count) {
+                
+                [_pageViewController setViewControllers:@[self.activeViewControllers[0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:NULL];
+            }
+        }
+        // TranslatesAutoresizingMaskIntoConstraints must be No when use NSLayoutConstraint
+        [_pageViewController.view setTranslatesAutoresizingMaskIntoConstraints:NO];
+        _pageViewController.doubleSided = YES;
+        
+    }
+    
+    return _pageViewController;
+}
+
+
 
 #pragma mark - IB Action
 
 - (IBAction)startWalkThrough:(id)sender {
     
     [self moveToFirstPage];
+    
     
 }
 
@@ -164,7 +200,7 @@
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
       viewControllerBeforeViewController:(UIViewController *)viewController {
-  
+    
     NSUInteger index = 0;
     
     if([viewController respondsToSelector:@selector(pageIndex)])
